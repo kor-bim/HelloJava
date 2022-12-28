@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
+	<script type="text/javascript" src="../../js/jquery-3.5.1.js"></script>
+	<script type="text/javascript">
+		function changeDiv1() {
+			$.ajax({
+				url: "intro.html",
+				success: function (data) {
+					$("#div1").html(data);
+				},
+				error: function () {
+				}
+			});
+		}
+
+		function makeTable() {
+			var table = "" 
+			+ "<table border='1'>"
+			+ "	<tr>             "
+			+ "		<th>제목</th>  "
+			+ "		<th>가수</th>  "
+			+ "	</tr>            "
+			+ "	<tr>             "
+			+ "		<td>"+title+"</td>    "
+			+ "		<td>"+artist+"</td>    "
+			+ "	</tr>            "
+			+ "</table>          "  ;
+			$("#div1").html();
+		}
+	</script>
+</head>
+
+<body>
+	<button onclick="changeDiv1()">바꿔</button>
+	<div id="div1" style="border: 1px solid red">
+		<h1>AJAX 테스트</h1>
+		<p>가나다라마바사</p>
+	</div>
+</body>
+
+</html>

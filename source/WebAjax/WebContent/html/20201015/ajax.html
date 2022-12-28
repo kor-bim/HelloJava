@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+
+<head>
+    <script src="../../js/jquery-3.5.1.js"></script>
+    <script>
+        $(function () {
+            $("#post").click(function () {
+                $("#myForm").attr("method", "post");
+                $("#myForm").submit;
+            });
+            $("#sendAjax").click(function () {
+                $("#resultAjax").load("intro.html");
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <form id="myForm" action="intro.html" method="GET">
+        <label for="name">이름</label>
+        <input type="text" id="name" name="name">
+        <br>
+        <label for="age">나이</label>
+        <input type="text" id="age" name="age">
+        <br><br>
+        <input type="submit" id="post" value="post버튼">
+        <input type="submit" id="get" value="get버튼">
+        <hr>
+        <button type="button" id="sendAjax">Ajax전송</button>
+    </form>
+    <span id="resultAjax"></span>
+</body>
+
+</html>

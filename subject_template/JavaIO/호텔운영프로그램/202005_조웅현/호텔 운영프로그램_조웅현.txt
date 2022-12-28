@@ -1,0 +1,310 @@
+package kr.or.ddit.basic;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.EOFException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
+
+public class HotelTest {
+	public void setInfo(){
+	// 1. 방의 정보를 갖고 있는 객체를 생성하기.
+			RoomVO r1 = new RoomVO(101, 0);
+			RoomVO r2 = new RoomVO(102, 0);
+			RoomVO r3 = new RoomVO(103, 0);
+			RoomVO r4 = new RoomVO(104, 0);
+			RoomVO r5 = new RoomVO(105, 0);
+			
+			// 2. 리스트 객체를 .bin에 저장하기
+			try {
+				FileOutputStream fos = new FileOutputStream("d:/D_Other/roomInfo.bin");
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
+				ObjectOutputStream oos = new ObjectOutputStream(bos);
+				
+				oos.writeObject(r1);
+				oos.writeObject(r2);
+				oos.writeObject(r3);
+				oos.writeObject(r4);
+				oos.writeObject(r5);
+				
+				System.out.println("방 정보 입력 완료");
+				oos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+	}
+	public static void main(String[] args){
+		
+		// 인스턴스 생성하여 시작하기
+		HotelTest obj = new HotelTest();
+		
+		// 호텔 방 정보를 *.bin에 저장하기.
+//		obj.setInfo();	// 처음 한번만 만들어 놔야, 그 상태가 계속 유지된다. 
+		obj.menu();
+	}
+	
+	public void menu() {
+		System.out.println("**************************");
+		System.out.println("호텔 문을 열었습니다.");
+		System.out.println("**************************");
+		System.out.println();
+		System.out.println("**************************");
+		System.out.println("어떤 업무를 하시겠습니까?");
+		System.out.println("1. 체크인 2.체크아웃 3.객실상태 4.업무종료");
+		System.out.println("**************************");
+		int userInput;
+		while(true) {
+			Scanner sc = new Scanner(System.in);
+			try {
+				userInput = sc.nextInt();
+			} catch (InputMismatchException e) {
+				e.printStackTrace();
+				System.out.println("잘못 입력하셨습니다. 다시 입력해 주세요.");
+				continue;
+			}
+			break;
+		}
+		switch(userInput) {
+		case 1:
+			chkIn();
+			break;
+		case 2:
+			chkOut();
+			break;
+		case 3:
+			chkStatus();
+			break;
+		case 4:
+			System.exit(0);
+			break;
+		default:
+		}
+		
+	}
+
+	private void chkStatus() {
+		// 1. 방정보 불러와서 출력하기
+		List<RoomVO> roomList = new ArrayList<>();
+		
+		try {
+			FileInputStream fr = new FileInputStream("d:/D_Other/roomInfo.bin");
+			BufferedInputStream bis = new BufferedInputStream(fr);
+			ObjectInputStream ois = new ObjectInputStream(bis);
+			
+			Object obj = null;
+			while((obj = ois.readObject()) != null) {
+				RoomVO room = (RoomVO) obj;
+				roomList.add(room);
+			}
+			ois.close();
+		}	
+		catch (FileNotFoundException e) {}
+		catch (IOException e) {}
+		catch (ClassNotFoundException e) {}
+		
+		for(RoomVO r : roomList) {
+			System.out.print("방 번호 : " + r.getRoomNum() + "\t");
+			System.out.println("예약 가능 여부 : " + r.getUsed());
+		}
+		
+	}
+
+	private void chkOut() {
+		List<RoomVO> roomList = new ArrayList<RoomVO>();
+		int index = -1;	// 사용자가 선택한 방이 배열에서 어디에 위치하는지를 파악하기 위한 변수.
+		int userInput = 0;	// 사용자가 입력하는 방 번호
+		boolean factor = false;
+		
+		try {
+			// 1. 방 정보를 저장하고 있는 roomInfo.bin 파일 불러오기..
+			FileInputStream fr = new FileInputStream("d:/D_Other/roomInfo.bin");
+			BufferedInputStream bis = new BufferedInputStream(fr);
+			ObjectInputStream ois = new ObjectInputStream(bis);
+			
+			// 2. 해당 파일에 저장되어 있는 데이터(객체)를 읽고, 현재 타입이 오브젝트이므로 캐스팅을 통해 방 정보를 저장하고 있는 객체로 되돌린다. 
+			Object obj = null;
+			while((obj = ois.readObject()) != null) {
+				RoomVO room = (RoomVO) obj;
+				roomList.add(room);
+			}
+			ois.close();
+		} catch (IOException e) {
+//			e.printStackTrace();
+		} catch(ClassNotFoundException e) {
+//			e.printStackTrace();
+		}
+		
+		while(true) {
+			System.out.println("예약을 취소할 방번호를 입력해주세요..");
+			try {
+				Scanner sc = new Scanner(System.in);
+				userInput = sc.nextInt();
+				
+				// 사용자가 입력한 방이 실제로 존재하는 방인지 확인하기
+				for (int i = 0 ; i < roomList.size() ; i++) {
+					if (userInput == roomList.get(i).getRoomNum()) {
+						index = i;
+						factor = true;
+					}
+				}
+				
+				if (factor == false) {
+					System.out.println("입력하신 방이 존재하지 않습니다. 다시 입력해주세요..");
+					continue;
+				}
+			}catch(InputMismatchException e){
+				System.out.println("잘못 입력하였습니다. 다시 입력해 주세요..");
+				continue;
+			}
+			
+			
+			System.out.println(userInput + "호실을 선택하셨습니다.");
+			System.out.println("예약 취소하였습니다. 감사합니다.");
+			// 사용자가 입력한 방의 used 상태를 false로 바꾸고, 해당 List 정보를 다시 bin형식인 파일로 저장하기.
+			roomList.get(index).setUsed(0);
+			try {
+				FileOutputStream fos = new FileOutputStream("d:/D_Other/roomInfo.bin");
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
+				ObjectOutputStream oos = new ObjectOutputStream(bos);
+				
+				// 파일에 다시 수정된 데이터 저장하기.
+				for (int i = 0 ; i < roomList.size() ; i++)	{
+					oos.writeObject(roomList.get(i));
+				}
+				System.out.println("데이터 쓰기 작업 완료...");
+				oos.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			break;
+		}	// endOf while(true)
+		menu();
+	}	// endOf chkOut();
+
+	
+	@SuppressWarnings("finally")
+	private void chkIn() {
+		// 방 정보를 저장할 리스트 만들기
+		List<RoomVO> roomList = new ArrayList<RoomVO>();
+		int index = -1;	// 사용자가 선택한 방이 배열에서 어디에 위치하는지를 파악하기 위한 변수.
+		int userInput = 0;	// 사용자가 입력하는 방 번호
+		boolean factor = false;
+		
+		try {
+			// 1. 방 정보를 저장하고 있는 roomInfo.bin 파일 불러오기..
+			FileInputStream fr = new FileInputStream("d:/D_Other/roomInfo.bin");
+			BufferedInputStream bis = new BufferedInputStream(fr);
+			ObjectInputStream ois = new ObjectInputStream(bis);
+			
+			// 2. 해당 파일에 저장되어 있는 데이터(객체)를 읽고, 현재 타입이 오브젝트이므로 캐스팅을 통해 방 정보를 저장하고 있는 객체로 되돌린다. 
+			Object obj = null;
+			while((obj = ois.readObject()) != null) {
+				RoomVO room = (RoomVO) obj;
+				roomList.add(room);
+			}
+			ois.close();
+		} catch (IOException e) {
+//			e.printStackTrace();
+		} catch(ClassNotFoundException e) {
+//			e.printStackTrace();
+		}
+		
+		while(true) {
+			System.out.println("현재 예약 가능한 방은 다음과 같습니다.");
+			System.out.println("===방 번호===");
+			for(int i = 0 ; i < roomList.size() ; i++) {
+				// 현재, 예약이 가능한 방에 한해서만 방번호를 출력한다. 
+				if (roomList.get(i).getUsed() == 0) {
+					System.out.println(roomList.get(i).getRoomNum());
+				}
+			}
+			System.out.println("=============");
+			System.out.println("원하는 방의 번호를 입력해주세요..");
+			try {
+				Scanner sc = new Scanner(System.in);
+				userInput = sc.nextInt();
+				
+				// 사용자가 입력한 방이 실제로 존재하는 방인지 확인하기
+				for (int i = 0 ; i < roomList.size() ; i++) {
+					if (userInput == roomList.get(i).getRoomNum()) {
+						index = i;
+						factor = true;
+					}
+				}
+				
+				if (factor == false) {
+					System.out.println("입력하신 방이 존재하지 않습니다. 다시 입력해주세요..");
+					chkIn();
+				}
+				
+			}catch (InputMismatchException e) {
+				e.printStackTrace();
+				System.out.println("잘못 입력하셨습니다. 다시 입력해 주세요...");
+				continue;
+			}
+			
+			System.out.println(userInput + "호실을 선택하셨습니다.");
+			System.out.println("예약하였습니다. 감사합니다.");
+			// 사용자가 입력한 방의 used 상태를 false로 바꾸고, 해당 List 정보를 다시 bin형식인 파일로 저장하기.
+			roomList.get(index).setUsed(1);
+			
+			try {
+				FileOutputStream fos = new FileOutputStream("d:/D_Other/roomInfo.bin");
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
+				ObjectOutputStream oos = new ObjectOutputStream(bos);
+				
+				// 파일에 다시 수정된 데이터 저장하기.
+				for (int i = 0 ; i < roomList.size() ; i++)	{
+					oos.writeObject(roomList.get(i));
+				}
+				System.out.println("데이터 쓰기 작업 완료...");
+				oos.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			break;
+		}	// endOf while(true)
+		menu();
+	}	// endOf chkIn()
+} // endOf HotelTest
+
+
+// 직렬화가 가능하도록, Serializable 인터페이스를 참조하는 클래스로 만든다. 
+class RoomVO implements Serializable{
+	private int roomNum;	//transient를 붙이면 직렬화를 할 수 없다.
+	private int used;
+	// 이 때 used는 0 또는 1만 사용해야 한다. 
+	
+	public RoomVO(int roomNum, int used) {
+		super();
+		this.roomNum = roomNum;
+		this.used = used;
+	}
+	
+	public int getRoomNum() {
+		return roomNum;
+	}
+	
+	public void setRoomNum(int roomNum) {
+		this.roomNum = roomNum;
+	}
+	
+	public int getUsed() {
+		return used;
+	}
+
+	public void setUsed(int used) {
+		this.used = used;
+	}
+}
